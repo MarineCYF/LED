@@ -74,12 +74,14 @@ def color():
         colorWipe_open(strip, Color(0, 0, 255))
     else:
         colorWipe_close(strip, Color(0, 0, 0))
-# def IRsensor():
-#     Value = GPIO.input(IRsensor)
-#     print(Value)
-
-t1 = threading.Thread(target=IRsensor)
+def IR_sensor():
+    Value = GPIO.input(IRsensor)
+    print(Value)
+threads = []
+t1 = threading.Thread(target=IR_sensor)
+threads.append(t1)
 t2 = threading.Thread(target=color)
+threads.append(t2)
 
 if __name__ == '__main__':
     # Create NeoPixel object with appropriate configuration.
@@ -87,6 +89,8 @@ if __name__ == '__main__':
     # Intialize the library (must be called once before other functions).
     strip.begin()
     while True:
-        color()
+        for t in threads:
+             t.setDaemon(True)
+             t.start()
     GPIO.cleanup()
 
