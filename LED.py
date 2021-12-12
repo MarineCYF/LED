@@ -60,12 +60,7 @@ def colorWipe_open(strip, color, wait_ms=10):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
         strip.show()
-        time.sleep(wait_ms/1000.0)
-        if GPIO.input(IRsensor) == 0:
-            colorWipe_open(strip, Color(0, 0, 255))
-        else:
-            colorWipe_close(strip, Color(0, 0, 0))
-    
+        time.sleep(wait_ms/1000.0)    
 
 def colorWipe_close(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
@@ -74,20 +69,24 @@ def colorWipe_close(strip, color, wait_ms=50):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
+def color():
+    if GPIO.input(IRsensor) == 0:
+        colorWipe_open(strip, Color(0, 0, 255))
+    else:
+        colorWipe_close(strip, Color(0, 0, 0))
+# def IRsensor():
+#     Value = GPIO.input(IRsensor)
+#     print(Value)
+
+t1 = threading.Thread(target=IRsensor)
+t2 = threading.Thread(target=color)
+
 if __name__ == '__main__':
     # Create NeoPixel object with appropriate configuration.
     strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     # Intialize the library (must be called once before other functions).
     strip.begin()
+    while True:
+        color()
+    GPIO.cleanup()
 
-
-    try:
-        while True:
-            print(GPIO.input(IRsensor))
-            if GPIO.input(IRsensor) == 0:
-                colorWipe_open(strip, Color(0, 0, 255))
-            else:
-                colorWipe_close(strip, Color(0, 0, 0))
-    except KeyboardInterrupt:
-        GPIO.cleanup()
-        time.sleep(0.1)
